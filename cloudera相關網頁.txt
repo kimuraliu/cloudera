@@ -1,3 +1,6 @@
+Cloudera原廠文件
+https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/installation.html
+
 Cloudera簡介和安裝部署概述
 https://www.itread01.com/content/1547694756.html
 
