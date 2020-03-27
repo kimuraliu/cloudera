@@ -1,2 +1,5 @@
 Cloudera簡介和安裝部署概述
 https://www.itread01.com/content/1547694756.html
+
+SOP - 封閉網路環境中安裝設定 CDH
+https://www.athemaster.com/resources/58
