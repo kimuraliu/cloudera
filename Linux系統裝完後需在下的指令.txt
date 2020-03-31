@@ -1,1 +1,43 @@
 1.更新
+yum update
+
+2.安裝git
+yum install git
+
+3.安裝docker
+*.官網: https://docs.docker.com/install/linux/docker-ce/centos/
+
+3.1 Uninstall old versions
+$ sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+                  
+3.2 Install using the repository
+Install required packages.
+$ sudo yum install -y yum-utils \
+  device-mapper-persistent-data \
+  lvm2
+  
+ Use the following command to set up the stable repository.
+ $ sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+    
+ $ sudo yum-config-manager --enable docker-ce-nightly
+ $ sudo yum-config-manager --enable docker-ce-test
+ $ sudo yum-config-manager --disable docker-ce-nightly
+ 
+    
+ INSTALL DOCKER ENGINE - COMMUNITY
+ $ sudo yum install docker-ce docker-ce-cli containerd.io
+    
+ 3.3. Start Docker
+ $ sudo systemctl start docker
+ 
+ 3.4 Verify that Docker Engine
+ $ sudo docker run hello-world
