@@ -28,6 +28,16 @@ $ sudo yum install -y yum-utils \
     --add-repo \
     https://download.docker.com/linux/centos/docker-ce.repo
     
+Install docker Compose on Linux systems
+1.Run this command to download the current stable release of Docker Compose:
+$ sudo curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+2.Apply executable permissions to the binary:
+$ sudo chmod +x /usr/local/bin/docker-compose
+
+3.Test the installation.
+$ docker-compose --version
+    
  $ sudo yum-config-manager --enable docker-ce-nightly
  $ sudo yum-config-manager --enable docker-ce-test
  $ sudo yum-config-manager --disable docker-ce-nightly
