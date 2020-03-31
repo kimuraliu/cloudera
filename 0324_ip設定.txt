@@ -1,0 +1,63 @@
+dropbox
+一般版本 cloudera 架設流程
+
+基本流程 三台都做,都在root執行較不會出錯
+
+1.修改主機名稱
+
+hostnamectl set-hostname master
+hostnamectl set-hostname slaver1
+hostnamectl set-hostname slaver2
+
+2.設定hosts檔案
+
+vim /etc/hosts
+192.168.146.128 master
+192.168.146.129 slaver1
+192.168.146.130 slaver2
+
+3.配置ssh無密碼登入
+ssh-keygen -t rsa #全部enter跳過 產生密碼
+ssh-copy-id master
+ssh-copy-id slaver1
+ssh-copy-id slaver2
+
+4.關閉防火牆
+systemctl mask firewalld.service
+systemctl disable firewalld.service
+
+5.關閉selinux
+
+sed -i '/SELINUX=enforcing/d' /etc/selinux/config
+sed -i '/SELINUX=disabled/d' /etc/selinux/config
+echo "SELINUX=disabled" >> /etc/selinux/config
+reboot #重開記得要開網路啊!!
+
+vim /etc/selinux/config # 檢查檔案
+  #SELINUX=disabled
+
+
+*下載和安裝Cloudera Manager Installer
+--舊版
+#去到你想要安裝Cloudera Manager Server的目錄中，並下載CM Installer
+$wget https://archive.cloudera.com/cm5/installer/latest/cloudera-manager-installer.bin
+
+#給bin檔案執行許可權
+$ chmod u+x cloudera-manager-installer.bin
+
+#執行bin檔案從網路上安裝Cloudera Manager Server
+$ sudo ./cloudera-manager-installer.bin
+
+--新版
+$ wget https://archive.cloudera.com/cm6/6.3.1/cloudera-manager-installer.bin
+
+$ chmod u+x cloudera-manager-installer.bin
+
+$ sudo ./cloudera-manager-installer.bin
+
+--試用版??
+$ wget https://archive.cloudera.com/cm7/7.0.3/cloudera-manager-installer.bin 
+
+$ chmod u+x cloudera-manager-installer.bin 
+
+$ sudo ./cloudera-manager-installer.bin
