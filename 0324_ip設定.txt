@@ -8,13 +8,17 @@ dropbox
 hostnamectl set-hostname master
 hostnamectl set-hostname slaver1
 hostnamectl set-hostname slaver2
+hostnamectl set-hostname slaver3
+hostnamectl set-hostname slaver4
 
 2.設定hosts檔案
 
 vim /etc/hosts
-192.168.146.128 master
-192.168.146.129 slaver1
-192.168.146.130 slaver2
+192.168.234.128 master
+192.168.234.129 slaver1
+192.168.234.130 slaver2
+192.168.234.129 slaver3
+192.168.234.130 slaver4
 
 3.配置ssh無密碼登入
 ssh-keygen -t rsa #全部enter跳過 產生密碼
