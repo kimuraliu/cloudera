@@ -315,6 +315,7 @@ CM Server 建議安裝在Utility Host or Master Host (namenode standby)
 yum search oracle-j2sdk
 
 2.安裝Oracle JDK (以下是範例，實際上必須依照上述找到的版本安裝)
+yum install oracle-j2sdk1.8
 yum install -y $
 
 3.驗證：確認Oracle JDK已被安裝，且版本要為update$，表示為安裝CM repo版本。
@@ -332,7 +333,7 @@ All Master Host & Worker Host
 rpm -qa|grep cloudera
  
 安裝CM Agent
-1.安裝Clouera Manager Agent，會連帶有一推相關套件被安裝
+1.安裝Clouera Manager Agent，會連帶有一推相關套件被安裝(/etc/yum.repos.d舊檔需要再)
 yum install -y cloudera-manager-agent cloudera-manager-daemons
 
 2.確認Cloudera Manager & Cloudera Agent已被安裝
@@ -367,16 +368,16 @@ CDH Wizard安裝畫面
   選擇『Choose Method』後面的『More Option』，進入到另外一個畫面，在『Remote Parcel Repository URLs』中第一個位置中加入私人Repo Server 『http://${Reop IP}/cdh5/parcel/$』(注意：要為私有網路IP)
   回到設定頁面，在『Select the specifc relase of the Cloudera mangager Agent you want to install on your hosts』中選擇『Custom Repository』，輸入『http://${Reop IP}/cm5』
 7.JDK安裝畫面，勾選『Install Oracle Java SE Development Kit(JDK)』，按下『continue』
-Enable Single User Mode畫面，不要勾選，按下『Continue』
-『Provide SSH login credentials』畫面，輸入$& $，建議用root帳號，按下『Continue』
-開始安裝，等待裝完，並確認皆安裝正確（綠色），按下『Continue』
-『Installing Selected Parcels』畫面，等待安裝完畢後，按下『Continue』
-『Inspect hosts for corretness』畫面，確認皆為綠色，，按下『Finish』
-『Choose the CDH 5 services that you want to install on your cluster』，選擇『core hadoop』，按下『Continue』
-在此選擇『core hadoop』，但服務的選擇會依每個客戶每個環境有所不同，請依需求選擇安裝。
-『Customize Role Assignments』，請依據章節『Scope - Cluster實際規劃範例』，按下『continue』
-以上是範例，服務的設定會依每個客戶每個環境有所不同，請依需求選擇安裝。
-『Database Setup』畫面，輸入各資料庫的帳號密碼，按『test connection』確認連線成功後，按下『continue』
-『Review Changes』畫面，以上確認各個資訊正確，按下『Continue』
-『First Run Command』畫面確認他跑完且正確（綠勾勾），，按下『Continue』
-結束安裝畫面，按下『Finish』
+8.Enable Single User Mode畫面，不要勾選，按下『Continue』
+9.『Provide SSH login credentials』畫面，輸入$& $，建議用root帳號，按下『Continue』
+10.開始安裝，等待裝完，並確認皆安裝正確（綠色），按下『Continue』
+11.『Installing Selected Parcels』畫面，等待安裝完畢後，按下『Continue』
+12.『Inspect hosts for corretness』畫面，確認皆為綠色，，按下『Finish』
+13.『Choose the CDH 5 services that you want to install on your cluster』，選擇『core hadoop』，按下『Continue』
+  在此選擇『core hadoop』，但服務的選擇會依每個客戶每個環境有所不同，請依需求選擇安裝。
+14.『Customize Role Assignments』，請依據章節『Scope - Cluster實際規劃範例』，按下『continue』
+  以上是範例，服務的設定會依每個客戶每個環境有所不同，請依需求選擇安裝。
+15.『Database Setup』畫面，輸入各資料庫的帳號密碼，按『test connection』確認連線成功後，按下『continue』
+16.『Review Changes』畫面，以上確認各個資訊正確，按下『Continue』
+17.『First Run Command』畫面確認他跑完且正確（綠勾勾），，按下『Continue』
+18.結束安裝畫面，按下『Finish』
