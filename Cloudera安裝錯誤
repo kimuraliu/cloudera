@@ -1,2 +1,9 @@
 問題:Install Parcels
 The selected parcels are being downloaded and installed on all the hosts in the cluster.
+解答:https://stackoverflow.com/questions/34861426/cloudera-host-with-bad-health-during-install
+（使用它們提供的腳本/usr/share/cmf/uninstall-cloudera-manager.sh
+yum remove 'cloudera-manager-*'並刪除了與我發現的cloudera相關的每個目錄...）
+
+然後刪除guid文件：
+
+rm /var/lib/cloudera-scm-agent/cm_guid
