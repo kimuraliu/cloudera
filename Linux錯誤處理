@@ -1,0 +1,7 @@
+問題1:How to repair CentOS ? Failed to mount /sysroot
+ANS:sudo xfs_repair -v -L /dev/dm-0
+
+問題2:vim提示錯誤：E575: viminfo: Illegal starting char in line
+ANS:刪除 .viminfo 
+rm ~/.viminfo
+
