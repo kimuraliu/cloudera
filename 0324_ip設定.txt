@@ -1,0 +1,382 @@
+dropbox
+一般版本 cloudera 架設流程
+
+基本流程 三台都做,都在root執行較不會出錯
+
+1.修改主機名稱
+
+hostnamectl set-hostname master
+hostnamectl set-hostname slaver1
+hostnamectl set-hostname slaver2
+hostnamectl set-hostname slaver3
+hostnamectl set-hostname slaver4
+
+2.設定hosts檔案
+
+vim /etc/hosts
+192.168.234.128 master
+192.168.234.129 slaver1
+192.168.234.130 slaver2
+192.168.234.129 slaver3
+192.168.234.130 slaver4
+
+3.配置ssh無密碼登入
+ssh-keygen -t rsa #全部enter跳過 產生密碼
+ssh-copy-id master
+ssh-copy-id slaver1
+ssh-copy-id slaver2
+
+4.關閉防火牆
+systemctl mask firewalld.service
+systemctl disable firewalld.service
+
+5.關閉selinux
+
+sed -i '/SELINUX=enforcing/d' /etc/selinux/config
+sed -i '/SELINUX=disabled/d' /etc/selinux/config
+echo "SELINUX=disabled" >> /etc/selinux/config
+reboot #重開記得要開網路啊!!
+
+vim /etc/selinux/config # 檢查檔案
+  #SELINUX=disabled
+
+
+*下載和安裝Cloudera Manager Installer
+--舊版5.X
+#去到你想要安裝Cloudera Manager Server的目錄中，並下載CM Installer
+$wget https://archive.cloudera.com/cm5/installer/latest/cloudera-manager-installer.bin
+
+#給bin檔案執行許可權
+$ chmod u+x cloudera-manager-installer.bin
+
+#執行bin檔案從網路上安裝Cloudera Manager Server
+$ sudo ./cloudera-manager-installer.bin
+
+--新版6.X
+$ wget https://archive.cloudera.com/cm6/6.3.1/cloudera-manager-installer.bin
+
+$ chmod u+x cloudera-manager-installer.bin
+
+$ sudo ./cloudera-manager-installer.bin
+
+--試用版??7.??
+$ wget https://archive.cloudera.com/cm7/7.0.3/cloudera-manager-installer.bin 
+
+$ chmod u+x cloudera-manager-installer.bin 
+
+$ sudo ./cloudera-manager-installer.bin
+
+
+6.關閉IPv6功能
+
+檢查(預設應為0,未關閉)
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
+cat /proc/sys/net/ipv6/conf/default/disable_ipv6
+
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
+echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6 ;
+echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf ;
+echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf ;
+sed -i 's/^udp6/#udp6/' /etc/netconfig
+sed -i 's/^tcp6/#tcp6/' /etc/netconfig
+
+驗證
+應為1
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
+cat /proc/sys/net/ipv6/conf/default/disable_ipv6
+
+cat /etc/netconfig
+確認 udp6 & tcp6那兩行被標註掉
+
+vim /etc/sysctl.conf
+# 新增了以下兩行
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+
+
+7.修改CentOS Linux 參數vm.swappiness Linux Kernel Parameter
+swappiness 是調整系統進行Swap的頻率. 
+建議值是 0~100 (0是低, 100是調高頻率).
+取值	             策略
+vm.swappiness = 0	禁用swap
+vm.swappiness = 1	只有在內存可用很小的情況下，為了避免發生OOM死機才換出。
+vm.swappiness = 10	內存比較大的時候使用這個值提高性能。
+vm.swappiness = 60	默認值。
+vm.swappiness = 100	優先換出。
+
+檢查
+cat /proc/sys/vm/swappiness
+
+修改參數
+sysctl -w vm.swappiness=0 ;
+echo 0 > /proc/sys/vm/swappiness ;
+echo "vm.swappiness=0" >> /etc/sysctl.conf
+
+驗證
+應為0
+cat /proc/sys/vm/swappiness 
+
+應為0
+sysctl -a |grep vm.swappiness
+
+確認sysctl.conf檔案室否有內容
+cat /etc/sysctl.conf
+vm.swappiness=0
+
+8.增加disable defrag 設定
+根據Cloudera Hadoop的建議，只需要關閉THP defrag即可，因為會影響到效能跟工作負載，
+請參考 Optimizing Performance in CDH(https://docs.cloudera.com/documentation/enterprise/5-14-x/topics/cdh_admin_performance.html#xd_583c10bfdbd326ba-7dae4aa6-147c30d0933--7fd5__section_hw3_sdf_jq)
+
+ 
+檢查
+cat /sys/kernel/mm/transparent_hugepage/defrag
+[always] madvise never
+
+disable defrag 設定
+echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
+ 
+在開機時關閉此設定
+chmod +x /etc/rc.d/rc.local ;
+echo "echo never > /sys/kernel/mm/transparent_hugepage/defrag" >> /etc/rc.local
+ 
+驗證
+cat /sys/kernel/mm/transparent_hugepage/defrag
+always madvise [never]
+
+cat /etc/rc.local
+#確認有以下這行
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+9.清除快取
+yum clean all
+重開機
+reboot 
+驗證
+再次確認以上設定是否正確
+每台主機名稱要正確並且要互相可以ping的到，但是需要重開機才生效
+ping -c 5 ip
+
+================================================================
+Environment Pre-check list
+每一台機器都必須具備以下條件：
+
+需已安裝OpenSSH。
+關閉防火牆服務。（步驟請參考章節- "OS Installation" , 子章節"設定CDH環境需要的作業系統"，第五節"關閉 SELinux 與Linux Firewall"）
+關閉SELinux。（步驟請參考章節 - "OS Installation" , 子章節 "設定CDH環境需要的作業系統"，第五節"關閉 SELinux 與 Linux Firewall"）
+網路設定正確。例：網卡，HOSTNAME，Network Config等。
+停用所有yum.repos.d之設定檔，指令如下
+cd /etc/yum.repos.d
+
+mkdir -p /etc/yum.repos.d/old_repo  #一次建多目錄
+
+mv -v *.repo old_repo/
+
+ls -la /etc/yum.repos.d/ # 檢查所有repo檔是否都在"old_repo"資料夾內
+==============================================================================
+HTTPD服務
+檢查有無安裝
+systemctl status httpd
+設定於開機時啟動httpd服務
+systemctl enable httpd
+啟動httpd服務
+systemctl start httpd
+==============================================================================
+確認需求的資料庫版本(PostgreSQL)
+確認作業系統對應的版本
+yum info postgresql
+
+psql -V
+
+安裝PostgreSQL(若有就不用安裝)
+sudo yum install -y postgresql-server
+
+設定PostgreSQL
+
+1.初始化
+postgresql-setup initdb
+
+2.編輯/var/lib/pgsql/data/pg_hba.conf
+vim /var/lib/pgsql/data/pg_hba.conf
+
+#host    all             all             127.0.0.1/32            ident
+#host    all             all             ::1/128                 ident
+host all all 0.0.0.0/0 md5
+
+3.編輯/var/lib/pgsql/data/postgresql.conf
+vim /var/lib/pgsql/data/postgresql.conf
+
+listen_addresses = '*' 
+shared_buffers = 256MB
+wal_buffers = 8MB
+checkpoint_segments = 16
+checkpoint_completion_target = 0.9
+
+4.設定開機後開啟PostgreSQL
+systemctl enable postgresql
+
+5.重啟PostgreSQL
+systemctl restart postgresql
+
+=============================================
+新增DB
+sudo -u postgres psql
+
+postgres=# create role scm login password 'scm';
+postgres=# create database scm owner scm encoding 'UTF-8';
+ 
+postgres=# create role amon login password 'amon_password';
+postgres=# create database amon owner amon encoding 'UTF-8';
+ 
+postgres=# create role rman login password 'rman_password';
+postgres=# create database rman owner rman encoding 'UTF-8';
+ 
+postgres=# create role hive login password 'hive_password';
+postgres=# create database metastore owner hive encoding 'UTF-8';
+ 
+postgres=# create role sentry login password 'sentry_password';
+postgres=# create database sentry owner sentry encoding 'UTF-8';
+ 
+postgres=# create role nav login password 'nav_password';
+postgres=# create database nav owner nav encoding 'UTF-8';
+ 
+postgres=# create role navms login password 'navms_password';
+postgres=# create database navms owner navms encoding 'UTF-8';
+
+
+3.新增METASTORE DB的設定
+postgres=# ALTER DATABASE METASTORE SET standard_conforming_strings = off;
+
+4.建立Hue服務的使用者跟資料庫 (role, password, DB)
+postgres=# create database hue;
+postgres=# \c hue;  (有問題)
+postgres=# create user hue with password 'hue_password';
+postgres=# grant all privileges on database hue to hue;
+
+5.建立Oozie服務的使用者跟資料庫 (role, password, DB)
+postgres=# CREATE ROLE oozie LOGIN ENCRYPTED PASSWORD 'oozie' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE;
+postgres=# CREATE DATABASE "oozie" WITH OWNER = oozie ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1;
+
+離開並重啟PostgreSQL
+postgres=# \q
+$ systemctl restart postgresql
+
+驗證
+
+
+1.登入資料庫
+sudo -u postgres psql
+2.檢查各使用者是否有被建立 (以下是範例)
+postgres=# \du
+                             List of roles
+Role name |                   Attributes                   | Member of
+-----------+------------------------------------------------+-----------
+amon      |                                                | {}
+hive      |                                                | {}
+hue       |                                                | {}
+nav       |                                                | {}
+navms     |                                                | {}
+oozie     | Create DB                                      | {}
+postgres  | Superuser, Create role, Create DB, Replication | {}
+rman      |                                                | {}
+scm       |                                                | {}
+sentry    |                                                | {}
+
+3.檢查各資料庫是否有被建立 (以下是範例)
+postgres=# /l
+                                  List of databases
+   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
+-----------+----------+----------+-------------+-------------+-----------------------
+amon      | amon     | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+hue       | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =Tc/postgres         +
+           |          |          |             |             | postgres=CTc/postgres+
+           |          |          |             |             | hue=CTc/postgres
+metastore | hive     | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+nav       | nav      | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+navms     | navms    | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+oozie     | oozie    | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+rman      | rman     | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+scm       | scm      | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+sentry    | sentry   | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+(12 rows)
+
+=================================================================================
+Cloudera Hadoop (CDH) Wizard Installation
+CM Server 建議安裝在Utility Host or Master Host (namenode standby)
+1.CM Server在一台Master Host上
+2.CM Agent在所有主機上
+
+安裝Oracle JDK
+1.查看Oracle JDK的安裝版本，應為使用作業系統內建的版本。
+yum search oracle-j2sdk
+
+2.安裝Oracle JDK (以下是範例，實際上必須依照上述找到的版本安裝)
+yum install -y $
+
+3.驗證：確認Oracle JDK已被安裝，且版本要為update$，表示為安裝CM repo版本。
+Sample Result
+[kenlin@namenode01 ~]$ rpm -qa |grep oracle-j2sdk
+oracle-j2sdk1.7-1.7.0+update67-1.x86_64
+=================================================================================
+安裝CM Server & CM Agent
+安裝CM Server
+1.安裝Cloudera Manager Server
+yum install -y cloudera-manager-daemons cloudera-manager-server
+
+2.確認Cloudera Manager & Cloudera Agent已被安裝
+All Master Host & Worker Host
+rpm -qa|grep cloudera
+ 
+安裝CM Agent
+1.安裝Clouera Manager Agent，會連帶有一推相關套件被安裝
+yum install -y cloudera-manager-agent cloudera-manager-daemons
+
+2.確認Cloudera Manager & Cloudera Agent已被安裝
+All Master Host & Worker Host
+=================================================================================
+設定並啟動CM Server & CM Agent
+1.在Master  host 上，將CM DB與CM Server連結，指令如下：
+#CM5
+/usr/share/cmf/schema/scm_prepare_database.sh postgresql scm scm scm
+#CM6
+/opt/cloudera/cm/schema/scm_prepare_database.sh postgresql scm scm scm
+
+
+2.在Master Host上，啟動CM Server
+service cloudera-scm-server start
+
+3.在所有機器上，啟動CM Agent
+service cloudera-scm-agent start
+===============================================================================
+CDH Wizard安裝畫面
+
+1.登入Web Wizard安裝畫面
+  URL → http://$:7180
+  帳號/ 密碼：admin / admin
+2.EULA畫面，按下『Continue』
+3.Edition畫面，選擇版本『Cloudera Enterprise Dat Hub Edition Trial』
+4.感謝畫面，按下『Continue』
+5.選擇hostname
+  請輸入所有機器的hostname並且按下搜尋
+  確認所搜尋到的host是否為正確，勾選後按下『Continue』
+6.設定Repo
+  選擇『Choose Method』後面的『More Option』，進入到另外一個畫面，在『Remote Parcel Repository URLs』中第一個位置中加入私人Repo Server 『http://${Reop IP}/cdh5/parcel/$』(注意：要為私有網路IP)
+  回到設定頁面，在『Select the specifc relase of the Cloudera mangager Agent you want to install on your hosts』中選擇『Custom Repository』，輸入『http://${Reop IP}/cm5』
+7.JDK安裝畫面，勾選『Install Oracle Java SE Development Kit(JDK)』，按下『continue』
+Enable Single User Mode畫面，不要勾選，按下『Continue』
+『Provide SSH login credentials』畫面，輸入$& $，建議用root帳號，按下『Continue』
+開始安裝，等待裝完，並確認皆安裝正確（綠色），按下『Continue』
+『Installing Selected Parcels』畫面，等待安裝完畢後，按下『Continue』
+『Inspect hosts for corretness』畫面，確認皆為綠色，，按下『Finish』
+『Choose the CDH 5 services that you want to install on your cluster』，選擇『core hadoop』，按下『Continue』
+在此選擇『core hadoop』，但服務的選擇會依每個客戶每個環境有所不同，請依需求選擇安裝。
+『Customize Role Assignments』，請依據章節『Scope - Cluster實際規劃範例』，按下『continue』
+以上是範例，服務的設定會依每個客戶每個環境有所不同，請依需求選擇安裝。
+『Database Setup』畫面，輸入各資料庫的帳號密碼，按『test connection』確認連線成功後，按下『continue』
+『Review Changes』畫面，以上確認各個資訊正確，按下『Continue』
+『First Run Command』畫面確認他跑完且正確（綠勾勾），，按下『Continue』
+結束安裝畫面，按下『Finish』
