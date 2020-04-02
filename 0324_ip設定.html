@@ -42,7 +42,7 @@ vim /etc/selinux/config # 檢查檔案
 
 
 *下載和安裝Cloudera Manager Installer
---舊版
+--舊版5.X
 #去到你想要安裝Cloudera Manager Server的目錄中，並下載CM Installer
 $wget https://archive.cloudera.com/cm5/installer/latest/cloudera-manager-installer.bin
 
@@ -52,16 +52,67 @@ $ chmod u+x cloudera-manager-installer.bin
 #執行bin檔案從網路上安裝Cloudera Manager Server
 $ sudo ./cloudera-manager-installer.bin
 
---新版
+--新版6.X
 $ wget https://archive.cloudera.com/cm6/6.3.1/cloudera-manager-installer.bin
 
 $ chmod u+x cloudera-manager-installer.bin
 
 $ sudo ./cloudera-manager-installer.bin
 
---試用版??
+--試用版??7.??
 $ wget https://archive.cloudera.com/cm7/7.0.3/cloudera-manager-installer.bin 
 
 $ chmod u+x cloudera-manager-installer.bin 
 
 $ sudo ./cloudera-manager-installer.bin
+
+
+6.關閉IPv6功能
+
+檢查(預設應為0,未關閉)
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
+cat /proc/sys/net/ipv6/conf/default/disable_ipv6
+
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
+echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6 ;
+echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf ;
+echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf ;
+sed -i 's/^udp6/#udp6/' /etc/netconfig
+sed -i 's/^tcp6/#tcp6/' /etc/netconfig
+
+驗證
+應為1
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
+cat /proc/sys/net/ipv6/conf/default/disable_ipv6
+
+cat /etc/netconfig
+確認 udp6 & tcp6那兩行被標註掉
+
+vim /etc/sysctl.conf
+# 新增了以下兩行
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+
+
+7.修改CentOS Linux 參數vm.swappiness Linux Kernel Parameter
+swappiness 是調整系統進行Swap的頻率. 
+建議值是 0~100 (0是低, 100是調高頻率).
+
+檢查
+cat /proc/sys/vm/swappiness
+
+修改參數
+sysctl -w vm.swappiness=0 ;
+echo 0 > /proc/sys/vm/swappiness ;
+echo "vm.swappiness=0" >> /etc/sysctl.conf
+
+驗證
+應為0
+cat /proc/sys/vm/swappiness 
+
+應為0
+sysctl -a |grep vm.swappiness
+
+確認sysctl.conf檔案室否有內容
+cat /etc/sysctl.conf
+vm.swappiness=0
