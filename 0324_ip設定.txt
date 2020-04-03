@@ -192,6 +192,10 @@ sudo yum install -y postgresql-server
 
 設定PostgreSQL
 
+pg_ctl 是一個用於啟動、停止， 或重啟 PostgreSQL 後端伺服器，及顯示伺服器的狀態的工具。
+Synopsis
+pg_ctl start | stop | reload | status | restart [-D data_dir]
+
 1.初始化
 postgresql-setup initdb
 
