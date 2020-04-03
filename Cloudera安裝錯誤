@@ -1,4 +1,10 @@
-問題:Install Parcels
+問題:太頻繁開關server導致server無法啟動
+解答:Redirecting to /bin/systemctl start cloudera-scm-server.service
+Job for cloudera-scm-server.service failed because start of the service was attempted too often. See "systemctl status cloudera-scm-server.service" and "journalctl -xe" for details.
+To force a start use "systemctl reset-failed cloudera-scm-server.service" followed by "systemctl start cloudera-scm-server.service" again.
+
+
+問題:Install Parcels-cloudera host with bad health during install
 The selected parcels are being downloaded and installed on all the hosts in the cluster.
 解答:https://stackoverflow.com/questions/34861426/cloudera-host-with-bad-health-during-install
 （使用它們提供的腳本/usr/share/cmf/uninstall-cloudera-manager.sh
@@ -7,3 +13,14 @@ yum remove 'cloudera-manager-*'並刪除了與我發現的cloudera相關的每�
 然後刪除guid文件：
 
 rm /var/lib/cloudera-scm-agent/cm_guid
+
+問題:卸載Cloudera Manager代理和託管軟件
+1.Stop the Cloudera Manager Agent.
+sudo systemctl stop supervisord
+
+2.To uninstall managed software, run the following commands:
+sudo yum remove 'cloudera-manager-*'
+
+3.Run the clean command
+sudo yum clean all
+sudo apt-get clean
