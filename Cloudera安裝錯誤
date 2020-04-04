@@ -24,3 +24,9 @@ sudo yum remove 'cloudera-manager-*'
 3.Run the clean command
 sudo yum clean all
 sudo apt-get clean
+
+問題:Cloudera 6.2 Installation: ERROR StatusLogger No log4j2 configuration file found.
+ERROR StatusLogger No log4j2 configuration file found. Using default configuration: logging only errors ... logging.
+Hint: Some lines were ellipsized, use -l to show in full.
+
+解答:https://microdevsys.com/wp/cloudera-6-2-installation-error-statuslogger-no-log4j2-configuration-file-found/
