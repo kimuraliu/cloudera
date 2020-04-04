@@ -11,8 +11,11 @@ The selected parcels are being downloaded and installed on all the hosts in the 
 yum remove 'cloudera-manager-*'並刪除了與我發現的cloudera相關的每個目錄...）
 
 然後刪除guid文件：
-
+1.檢查/etc/cloudera-scm-agent/config.ini文件，
+驗證主機是否配置了正確的Cloudera Manager服務器主機。如果不正確，
+請轉到主機並刪除文件“ / var / lib / cloudera-scm-agent / cm_guid”，然後重新啟動cloudera manager代理服務
 rm /var/lib/cloudera-scm-agent/cm_guid
+
 
 問題:卸載Cloudera Manager代理和託管軟件
 1.Stop the Cloudera Manager Agent.
