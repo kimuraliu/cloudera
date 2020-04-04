@@ -155,15 +155,19 @@ vm.swappiness=0
 cat /sys/kernel/mm/transparent_hugepage/defrag
 [always] madvise never
 
-disable defrag 設定
+disable defrag 設定(Transparent Huge Page Compaction 透明大頁面壓縮)
 echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
+echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
  
 在開機時關閉此設定
 chmod +x /etc/rc.d/rc.local ;
 echo "echo never > /sys/kernel/mm/transparent_hugepage/defrag" >> /etc/rc.local
+echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled" >> /etc/rc.local
  
 驗證
 cat /sys/kernel/mm/transparent_hugepage/defrag
+always madvise [never]
+cat /sys/kernel/mm/transparent_hugepage/enabled
 always madvise [never]
 
 cat /etc/rc.local
@@ -199,10 +203,16 @@ ls -la /etc/yum.repos.d/ # 檢查所有repo檔是否都在"old_repo"資料夾內
 HTTPD服務
 檢查有無安裝
 systemctl status httpd
+若無則安裝
+yum install httpd mod_ssl openssl
 設定於開機時啟動httpd服務
 systemctl enable httpd
 啟動httpd服務
 systemctl start httpd
+
+安裝CREATEREPO程式
+檢查
+rpm -qa|grep createrepo
 ==============================================================================
 確認需求的資料庫版本(PostgreSQL)
 確認作業系統對應的版本
@@ -282,6 +292,7 @@ postgres=# grant all privileges on database hue to hue;
 5.建立Oozie服務的使用者跟資料庫 (role, password, DB)
 postgres=# CREATE ROLE oozie LOGIN ENCRYPTED PASSWORD 'oozie' NOSUPERUSER INHERIT CREATEDB NOCREATEROLE;
 postgres=# CREATE DATABASE "oozie" WITH OWNER = oozie ENCODING = 'UTF8' TABLESPACE = pg_default LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' CONNECTION LIMIT = -1;
+(en_US.UTF-8 -->改 zh_TW.UTF-8)
 
 離開並重啟PostgreSQL
 postgres=# \q
@@ -309,7 +320,7 @@ scm       |                                                | {}
 sentry    |                                                | {}
 
 3.檢查各資料庫是否有被建立 (以下是範例)
-postgres=# /l
+postgres=# \l
                                   List of databases
    Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
 -----------+----------+----------+-------------+-------------+-----------------------
@@ -372,7 +383,10 @@ All Master Host & Worker Host
 /usr/share/cmf/schema/scm_prepare_database.sh postgresql scm scm scm
 #CM6
 /opt/cloudera/cm/schema/scm_prepare_database.sh postgresql scm scm scm
-
+(如果發生"嚴重錯誤: Ident驗證使用者失敗"
+修改認證檔案/var/lib/pgsql/data/pg_hba.conf,登陸使用密碼。
+#vi /var/lib/pgsql/data/pg_hba.conf
+把這個配置檔案中的認證 METHOD的ident修改為trust,可以實現用賬戶和密碼來訪問資料庫,)
 
 2.在Master Host上，啟動CM Server
 service cloudera-scm-server start
@@ -406,5 +420,39 @@ CDH Wizard安裝畫面
   以上是範例，服務的設定會依每個客戶每個環境有所不同，請依需求選擇安裝。
 15.『Database Setup』畫面，輸入各資料庫的帳號密碼，按『test connection』確認連線成功後，按下『continue』
 16.『Review Changes』畫面，以上確認各個資訊正確，按下『Continue』
+
+  dfs.datanode.data.dir-->/dfs/dn
+  
+  dfs.namenode.name.dir-->/dfs/nn
+  
+  dfs.namenode.checkpoint.dir-->/dfs/snn
+  
+  Hadoop TLS / SSL服務器密鑰庫文件位置(Hadoop TLS/SSL Server Keystore File Location)
+  ssl.server.keystore.location-->/dfs/hadSSLFile
+  
+  Hadoop TLS / SSL服務器密鑰庫文件密碼(Hadoop TLS/SSL Server Keystore File Password)
+  ssl.server.keystore.password-->1234
+  
+  Hadoop TLS / SSL服務器密鑰庫密鑰密碼(Hadoop TLS/SSL Server Keystore Key Password)
+  ssl.server.keystore.keypassword-->1234
+  
+  警報：郵件服務器用戶名(Alerts: Mail Server Username_
+  root
+  
+  警報：郵件服務器密碼(Alerts: Mail Server Password)
+  1234
+  
+  自定義警報腳本(Custom Alert Script)
+  alert.script.path-->/dfs/hadAlert
+  
+  歷史記錄服務器TLS / SSL服務器JKS密鑰庫文件位置(History Server TLS/SSL Server JKS Keystore File Location)
+  spark.ssl.historyServer.keyStore-->/dfs/sparkSSL
+  
+  歷史記錄服務器TLS / SSL服務器JKS密鑰庫文件密碼(History Server TLS/SSL Server JKS Keystore File Password)
+  1234
+  容器使用MapReduce作業用戶(Container Usage MapReduce Job User)
+  root
+  
+
 17.『First Run Command』畫面確認他跑完且正確（綠勾勾），，按下『Continue』
 18.結束安裝畫面，按下『Finish』
