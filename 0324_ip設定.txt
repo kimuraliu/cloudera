@@ -14,17 +14,19 @@ hostnamectl set-hostname slaver4
 2.設定hosts檔案
 
 vim /etc/hosts
-192.168.234.128 master
-192.168.234.129 slaver1
-192.168.234.130 slaver2
-192.168.234.129 slaver3
-192.168.234.130 slaver4
+192.168.236.128 master
+192.168.236.129 slaver1
+192.168.236.130 slaver2
+192.168.236.131 slaver3
+192.168.236.132 slaver4
 
 3.配置ssh無密碼登入
 ssh-keygen -t rsa #全部enter跳過 產生密碼
 ssh-copy-id master
 ssh-copy-id slaver1
 ssh-copy-id slaver2
+ssh-copy-id slaver3
+ssh-copy-id slaver4
 
 4.關閉防火牆
 systemctl mask firewalld.service
@@ -35,12 +37,31 @@ systemctl disable firewalld.service
 sed -i '/SELINUX=enforcing/d' /etc/selinux/config
 sed -i '/SELINUX=disabled/d' /etc/selinux/config
 echo "SELINUX=disabled" >> /etc/selinux/config
+ntp時間同步(沒有好像也可以,但較保險)
+yum install ntp
+ntpdate -u time.stdtime.gov.tw  (國家時間與頻率標準實驗室 118.163.81.61)
+修改ntp server
+vim /etc/ntp.conf
+#server 0.centos.pool.ntp.org
+#server 1.centos.pool.ntp.org
+#server 2.centos.pool.ntp.org
+restrict 118.163.81.61  <==放行伺服器來源！
+server 118.163.81.61    <==這就是伺服器！
+重啟服務
+systemctl enable ntpd
+systemctl start ntpd
+驗證
+systemctl status ntpd
+或看time Server ip
+ntpq -p
+
 reboot #重開記得要開網路啊!!
 
 vim /etc/selinux/config # 檢查檔案
   #SELINUX=disabled
+  
 
-
+==============================================================================================
 *下載和安裝Cloudera Manager Installer
 --舊版5.X
 #去到你想要安裝Cloudera Manager Server的目錄中，並下載CM Installer
@@ -65,7 +86,7 @@ $ wget https://archive.cloudera.com/cm7/7.0.3/cloudera-manager-installer.bin
 $ chmod u+x cloudera-manager-installer.bin 
 
 $ sudo ./cloudera-manager-installer.bin
-
+=============================================================================================
 
 6.關閉IPv6功能
 
@@ -77,7 +98,7 @@ echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6 ;
 echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6 ;
 echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf ;
 echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf ;
-sed -i 's/^udp6/#udp6/' /etc/netconfig
+sed -i 's/^udp6/#udp6/' /etc/netconfig;
 sed -i 's/^tcp6/#tcp6/' /etc/netconfig
 
 驗證
@@ -88,8 +109,8 @@ cat /proc/sys/net/ipv6/conf/default/disable_ipv6
 cat /etc/netconfig
 確認 udp6 & tcp6那兩行被標註掉
 
-vim /etc/sysctl.conf
-# 新增了以下兩行
+cat /etc/sysctl.conf
+# 確認新增了以下兩行
 net.ipv6.conf.all.disable_ipv6 = 1
 net.ipv6.conf.default.disable_ipv6 = 1
 
@@ -104,8 +125,10 @@ vm.swappiness = 10	內存比較大的時候使用這個值提高性能。
 vm.swappiness = 60	默認值。
 vm.swappiness = 100	優先換出。
 
-檢查
+檢查(預設應為1-->目前30)
 cat /proc/sys/vm/swappiness
+(預設應為1-->目前30)
+sysctl -a |grep vm.swappiness
 
 修改參數
 sysctl -w vm.swappiness=0 ;
