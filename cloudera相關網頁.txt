@@ -6,3 +6,7 @@ https://www.itread01.com/content/1547694756.html
 
 SOP - 封閉網路環境中安裝設定 CDH
 https://www.athemaster.com/resources/58
+
+CM6 RPM檔案
+https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/
+https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/cloudera-manager-server-6.3.1-1466458.el7.x86_64.rpm
