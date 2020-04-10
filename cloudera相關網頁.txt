@@ -16,3 +16,19 @@ http://blog.itist.tw/2016/09/install-delete-upgrade-downgrade-and-verify-rpm-pac
 
 cloudera軟體下載
 https://archive.cloudera.com/cm6/6.0.0/redhat7/yum/RPMS/x86_64/
+
+解決postgres嵌入問題
+https://stackoverflow.com/questions/49489037/can-not-start-cloudera-scm-server-db-because-of-the-cm-is-using-external-db
+如果打開此/etc/cloudera-scm-server/db.properties文件，如下所示。.com.cloudera.cmf.db.type=postgresql
+com.cloudera.cmf.db.host=localhost
+com.cloudera.cmf.db.name=scm
+com.cloudera.cmf.db.user=scm
+com.cloudera.cmf.db.password=TXqEESuhj5
+com.cloudera.cmf.db.setupType=EXTERNAL
+修改host與setupType
+com.cloudera.cmf.db.type=postgresql
+com.cloudera.cmf.db.host=localhost:7432
+com.cloudera.cmf.db.name=scm
+com.cloudera.cmf.db.user=scm
+com.cloudera.cmf.db.password=new_password
+com.cloudera.cmf.db.setupType=EMBEDDED
