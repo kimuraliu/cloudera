@@ -1,0 +1,23 @@
+from pyspark import SparkContext
+
+if __name__ == "__main__":
+    sc = SparkContext()
+#開啟hdfs檔案
+#ex 
+#This is a
+#book This book
+#is good
+#["This is a","book This book","is good"]
+    lines = sc.textFile("hdfs://localhost/user/cloudera/spark101/wordcount/book")
+    
+#flatMap攤平拆字
+#["This", "is" , "a","book" , "This" , "book","is" , "good"]
+    words = lines.flatMap(lambda x: x.split(" "))
+    
+#用map把rdd 轉為 (字,1)
+#[(This,1), (is,1) , (a,1),(book,1) , (This,1) , (book,1),(is,1) , (good,1)]
+    word_counts = words.map(lambda x: (x, 1)).reduceByKey(lambda x, y: x + y)
+    
+#reduce by key
+#[(This,2), (is,2) , (a,1),(book,2) , (good,1)]
+    word_counts.saveAsTextFile("hdfs://localhost/user/cloudera/spark101/wordcount/output")
