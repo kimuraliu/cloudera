@@ -47,6 +47,9 @@ vim /etc/ntp.conf
 #server 2.centos.pool.ntp.org
 restrict 118.163.81.61  <==放行伺服器來源！
 server 118.163.81.61    <==這就是伺服器！
+或
+timedatectl set-timezone Asia/Taipei
+
 重啟服務
 systemctl enable ntpd
 systemctl start ntpd
@@ -265,6 +268,7 @@ vim /var/lib/pgsql/data/pg_hba.conf
 #host    all             all             127.0.0.1/32            ident
 #host    all             all             ::1/128                 ident
 host all all 0.0.0.0/0 md5
+host all all 127.0.0.1/32 md5
 
 3.編輯/var/lib/pgsql/data/postgresql.conf
 vim /var/lib/pgsql/data/postgresql.conf
@@ -370,6 +374,225 @@ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres       
 (12 rows)
 
 =================================================================================
+安裝mySQL(iii版)
+
+所有伺服器均建立安裝使用者：cloudera
+
+groupadd cloudera
+useradd -g cloudera cloudera
+echo "*********" | passwd --stdin cloudera
+
+所有伺服器為cloudera使用者配置sudo許可權
+
+chmod -u -w /etc/sudoers
+echo "cloudera ALL=(root)NOPASSWD:ALL" >> /etc/sudoers
+chmod u-w /etc/sudoers
+
+所有伺服器設定檔案開啟數量及最大程序數
+
+cp /etc/security/limits.conf /etc/security/limits.conf.bak
+echo "* soft nproc 32000" >>/etc/security/limits.conf
+echo "* hard nproc 32000" >>/etc/security/limits.conf
+echo "* soft nofile 65535" >>/etc/security/limits.conf
+echo "* hard nofile 65535" >>/etc/security/limits.conf
+
+安裝MySQL
+
+rpm -qa|grep mysql 如果有的話請先解除安裝
+這裡使用的是 上網載
+mysql-5.7.18-1.el7.x86_64.rpm-bundle.tar
+mysql-connector-java-5.1.42-bin.jar 
+systemctl start mysqld
+systemctl status mysqld
+
+cat /var/log/mysqld.log | grep password #產生密碼
+mysql -uroot -p #登入
+mysql> SET PASSWORD = PASSWORD('**********');
+Query OK, 0 rows affected, 1 warning (0.00 sec)    
+
+#安裝時會和mariadb衝突,記得要刪除mariadb
+#password記得要用強密碼,google打mysql strongpassword 自己生一個
+
+
+
+設定root授權訪問以上所有的資料庫,因為CM安裝時會建立資料庫，這裡設定後安裝CM時可以設定資料庫的host為master
+mysql>grant all privileges on *.* to 'root'@'master' identified by '*********' with grant option;
+mysql>flush privileges;
+    
+
+需要安裝hive做為資料倉儲，同時使用了Mysql作為Hive的儲存方式，所以這裡單獨為hive建立一個庫。
+mysql>create database hive DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+=================================================================================
+安裝MySQL(cloudera官網版)
+wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+sudo rpm -ivh mysql-community-release-el7-5.noarch.rpm
+sudo yum update
+sudo yum install mysql-server
+sudo systemctl start mysqld
+
+Stop the MySQL server if it is running
+$ sudo systemctl stop mysqld
+
+Determine the location of the option file, my.cnf (/etc/my.cnf by default).
+Update my.cnf so that it conforms to the following requirements:
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+修改 my.cnf設定
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+transaction-isolation = READ-COMMITTED
+# Disabling symbolic-links is recommended to prevent assorted security risks;
+# to do so, uncomment this line:
+symbolic-links = 0
+
+key_buffer_size = 32M
+max_allowed_packet = 32M
+thread_stack = 256K
+thread_cache_size = 64
+query_cache_limit = 8M
+query_cache_size = 64M
+query_cache_type = 1
+
+max_connections = 550
+#expire_logs_days = 10
+#max_binlog_size = 100M
+
+#log_bin should be on a disk with enough free space.
+#Replace '/var/lib/mysql/mysql_binary_log' with an appropriate path for your
+#system and chown the specified folder to the mysql user.
+log_bin=/var/lib/mysql/mysql_binary_log
+
+#In later versions of MySQL, if you enable the binary log and do not set
+#a server_id, MySQL will not start. The server_id must be unique within
+#the replicating group.
+server_id=1
+
+binlog_format = mixed
+
+read_buffer_size = 2M
+read_rnd_buffer_size = 16M
+sort_buffer_size = 8M
+join_buffer_size = 8M
+
+# InnoDB settings
+innodb_file_per_table = 1
+innodb_flush_log_at_trx_commit  = 2
+innodb_log_buffer_size = 64M
+innodb_buffer_pool_size = 4G
+innodb_thread_concurrency = 8
+innodb_flush_method = O_DIRECT
+innodb_log_file_size = 512M
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+sql_mode=STRICT_ALL_TABLES
+''''''''''''''''''''''''''''''''''''''''''''
+Ensure the MySQL server starts at boot:(設定自動啟動)
+$sudo systemctl enable mysqld
+
+Start the MySQL server:(啟動mysql)
+$sudo systemctl start mysqld
+
+Run /usr/bin/mysql_secure_installation to set the MySQL root password and other security-related settings. In a new installation, the root password is blank. Press the Enter key when you're prompted for the root password. For the rest of the prompts, enter the responses listed below in bold:(設定 mysql root密碼)
+
+$sudo /usr/bin/mysql_secure_installation
+
+[...]
+Enter current password for root (enter for none):
+OK, successfully used password, moving on...
+[...]
+Set root password? [Y/n] Y
+New password:  1234
+Re-enter new password:  1234
+Remove anonymous users? [Y/n] Y
+[...]
+Disallow root login remotely? [Y/n] N
+[...]
+Remove test database and access to it [Y/n] Y
+[...]
+Reload privilege tables now? [Y/n] Y
+All done!
+
+安裝MySQL JDBC驅動程序
+1.下載 Download the MySQL JDBC driver from
+$ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz
+
+2.解壓縮
+$ tar zxvf mysql-connector-java-5.1.46.tar.gz
+
+3.複製JDBC至/usr/share/java/ Copy the JDBC driver, renamed, to /usr/share/java/. If the target directory does not yet exist, create it. For example:
+$ sudo mkdir -p /usr/share/java/
+$ cd mysql-connector-java-5.1.46
+$ sudo cp mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
+
+Creating Databases for Cloudera Software
+(為需要數據庫的組件創建數據庫和服務帳戶)
+1.(執行mySQL)Log in as the root user, or another user with privileges to create database and grant privileges:
+$ mysql -u root -p
+Enter password:
+
+2.使用以下命令為集群中部署的每個服務創建數據庫。您可以為<database>，<user>和<password>參數使用所需的任何值。下面的Cloudera Software數據庫表列出了Cloudera Manager配置設置中提供的默認名稱，但您無需使用它們。
+配置所有數據庫以使用 utf8 字符集。
+
+$ CREATE DATABASE <database> DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+(Query OK, 1 row affected (0.00 sec))
+
+建立資料表
+$ GRANT ALL ON <database>.* TO '<user>'@'%' IDENTIFIED BY '<password>';
+''''''''''''''''''''''''''''''''''
+CREATE DATABASE scm DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON scm.* TO 'scm'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE amon DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON amon.* TO 'amon'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE rman DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON rman.* TO 'rman'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE hue DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON hue.* TO 'hue'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE metastore DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON metastore.* TO 'hive'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE sentry DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON sentry.* TO 'sentry'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE nav DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON nav.* TO 'nav'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE navms DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON navms.* TO 'navms'@'%' IDENTIFIED BY '1234';
+
+CREATE DATABASE oozie DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY '1234';
+''''''''''''''''''''''''''''''''''
+Databases for Cloudera Software
+(Service	Database	User)
+Cloudera Manager Server	scm	scm
+Activity Monitor	amon	amon
+Reports Manager	rman	rman
+Hue	hue	hue
+Hive Metastore Server	metastore	hive
+Sentry Server	sentry	sentry
+Cloudera Navigator Audit Server	nav	nav
+Cloudera Navigator Metadata Server	navms	navms
+Oozie	oozie	oozie
+
+3.(確認資料表是否建立)Confirm that you have created all of the databases:
+$ SHOW DATABASES;
+
+4.Record the values you enter for database names, usernames, and passwords. The Cloudera Manager installation wizard requires this information to correctly connect to these databases.
+
+5.(執行scm_prepare_database.sh)Syntax for scm_prepare_database.sh
+sudo /opt/cloudera/cm/schema/scm_prepare_database.sh [options] <databaseType> <databaseName> <databaseUser> <password>
+/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm scm
+
+
+
+=================================================================================
 Cloudera Hadoop (CDH) Wizard Installation
 CM Server 建議安裝在Utility Host or Master Host (namenode standby)
 1.CM Server在一台Master Host上
@@ -404,6 +627,9 @@ yum install -y cloudera-manager-agent cloudera-manager-daemons
 2.確認Cloudera Manager & Cloudera Agent已被安裝
 All Master Host & Worker Host
 =================================================================================
+啟動DB
+sudo service cloudera-scm-server-db start
+
 設定並啟動CM Server & CM Agent
 1.在Master  host 上，將CM DB與CM Server連結，指令如下：
 #CM5
@@ -415,8 +641,7 @@ All Master Host & Worker Host
 #vi /var/lib/pgsql/data/pg_hba.conf
 把這個配置檔案中的認證 METHOD的ident修改為trust,可以實現用賬戶和密碼來訪問資料庫,)
 
-啟動DB
-sudo service cloudera-scm-server-db start
+
 
 2.在Master Host上，啟動CM Server
 service cloudera-scm-server start
