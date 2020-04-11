@@ -80,6 +80,12 @@ $ chmod u+x cloudera-manager-installer.bin
 
 $ sudo ./cloudera-manager-installer.bin
 
+($ wget https://archive.cloudera.com/cm6/6.3.1/cloudera-manager-installer.bin
+
+$ chmod u+x cloudera-manager-installer.bin
+
+$ sudo ./cloudera-manager-installer.bin)
+
 --試用版??7.??
 $ wget https://archive.cloudera.com/cm7/7.0.3/cloudera-manager-installer.bin 
 
@@ -213,6 +219,27 @@ systemctl start httpd
 安裝CREATEREPO程式
 檢查
 rpm -qa|grep createrepo
+==============================================================================
+移除OpenJDK
+檢查現有OpenJDK套件 (若一定要使用Open JDK, 請參考：http://www.athemaster.com/resources/57)
+CMD
+
+rpm -qa | grep jdk
+移除指令(以下範例指令，實際上要以找到的套件名稱為準)
+CMD
+
+yum remove -y java-*-openjdk-* ;
+yum remove -y copy-jdk-configs-*
+驗證
+用以下指令檢查，確認沒有OpenJDK套件被找到
+
+CMD
+rpm -qa | grep jdk
+安裝
+rpm -i /檔案
+-i ：install 的意思
+-v ：察看更細部的安裝資訊畫面
+-h ：以安裝資訊列顯示安裝進度
 ==============================================================================
 確認需求的資料庫版本(PostgreSQL)
 確認作業系統對應的版本
@@ -387,6 +414,9 @@ All Master Host & Worker Host
 修改認證檔案/var/lib/pgsql/data/pg_hba.conf,登陸使用密碼。
 #vi /var/lib/pgsql/data/pg_hba.conf
 把這個配置檔案中的認證 METHOD的ident修改為trust,可以實現用賬戶和密碼來訪問資料庫,)
+
+啟動DB
+sudo service cloudera-scm-server-db start
 
 2.在Master Host上，啟動CM Server
 service cloudera-scm-server start
