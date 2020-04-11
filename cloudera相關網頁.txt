@@ -11,6 +11,7 @@ CM6 RPM檔案
 https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/
 https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/cloudera-manager-server-6.3.1-1466458.el7.x86_64.rpm
 
+
 RPM指令說明
 http://blog.itist.tw/2016/09/install-delete-upgrade-downgrade-and-verify-rpm-packages-on-centos-7.html
 
@@ -32,3 +33,10 @@ com.cloudera.cmf.db.name=scm
 com.cloudera.cmf.db.user=scm
 com.cloudera.cmf.db.password=new_password
 com.cloudera.cmf.db.setupType=EMBEDDED
+
+错误提示：
+Warning: RPMDB altered outside of yum
+解决办法：
+删除yum的历史记录 
+rm -rf /var/lib/yum/history/*.sqlite  
+上面的命令需要root或同等权限才能执行
