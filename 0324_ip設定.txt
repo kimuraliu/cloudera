@@ -214,10 +214,34 @@ HTTPD服務
 systemctl status httpd
 若無則安裝
 yum install httpd mod_ssl openssl
+修改設定檔(錯誤處理1)
+/etc/httpd/conf/httpd.conf
+
+查看CDH版本
+/opt/cloudera/parcel-repo/manifest.json
+
 設定於開機時啟動httpd服務
 systemctl enable httpd
 啟動httpd服務
 systemctl start httpd
+
+建立CDH資料
+$ sudo mkdir -p /var/www/html/cloudera-repos
+$ sudo wget --recursive --no-parent --no-host-directories https://archive.cloudera.com/cdh6/version/parcels/ -P /var/www/html/cloudera-repos  (version要改)
+$ sudo wget --recursive --no-parent --no-host-directories https://archive.cloudera.com/gplextras6/version/parcels/ -P /var/www/html/cloudera-repos (version要改6.3.2)
+$ sudo chmod -R ugo+rX /var/www/html/cloudera-repos/cdh6
+$ sudo chmod -R ugo+rX /var/www/html/cloudera-repos/gplextras6
+
+建立Apache Accumulo for CDH
+$ sudo mkdir -p /var/www/html/cloudera-repos
+$(CM5版) sudo wget --recursive --no-parent --no-host-directories https://archive.cloudera.com/accumulo6/6.1.0/parcels/ -P /var/www/html/cloudera-repos
+$(CM6版) sudo wget --recursive --no-parent --no-host-directories https://archive.cloudera.com/accumulo6/6.1.0/parcels/ -P /var/www/html/cloudera-repos
+$(CM5版) sudo chmod -R ugo+rX /var/www/html/cloudera-repos/accumulo-c5
+$(CM6版) sudo chmod -R ugo+rX /var/www/html/cloudera-repos/accumulo6
+
+由Apache Spark 2 for CDH支持的CDS
+
+
 
 安裝CREATEREPO程式
 檢查
@@ -682,6 +706,7 @@ CDH Wizard安裝畫面
   
   dfs.namenode.checkpoint.dir-->/dfs/snn
   
+  (https://www.jianshu.com/p/ccfff00bc37d)
   Hadoop TLS / SSL服務器密鑰庫文件位置(Hadoop TLS/SSL Server Keystore File Location)
   ssl.server.keystore.location-->/dfs/hadSSLFile
   
@@ -710,4 +735,13 @@ CDH Wizard安裝畫面
   
 
 17.『First Run Command』畫面確認他跑完且正確（綠勾勾），，按下『Continue』
+*錯誤處理
+creating Hive Metastor database teble
+creating Oozie Metastor database teble
+
+ParcelUpdateService:com.cloudera.parcel.components.ParcelDownloaderImpl: Failed to download manifest. Status code: 404 URI: https://archive.cloudera.com/sqoop-teradata-connector1/1.7.1c6/manifest.json/
+
+官網:https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/cm_ig_create_local_parcel_repo.html
+
+
 18.結束安裝畫面，按下『Finish』
