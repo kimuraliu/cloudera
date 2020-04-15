@@ -1,0 +1,20 @@
+建立目錄
+sudo -u hdfs hadoop fs -mkdir / user / ,, myfile ,,
+sudo -u hdfs hadoop fs -put myfile.txt / user / ,, / ,,
+
+===========================================================================
+
+dd命令可以用來建立任意大小檔案,如:
+
+在當前目錄下建立一個檔名為file的10M的空檔案
+dd if=/dev/zero of=./file.txt bs=1M count=10
+
+關於dd命令的更多用法:
+http://blog.csdn.net/adaptiver/article/details/6672592
+
+创建一个100M的空文件
+dd if=/dev/zero of=hello.txt bs=100M count=1
+
+dd if=/dev/zero of=DB106_0415_100M_test.txt bs=100M count=1
+
+============================================================================
