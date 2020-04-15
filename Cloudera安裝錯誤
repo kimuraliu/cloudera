@@ -33,3 +33,13 @@ ERROR StatusLogger No log4j2 configuration file found. Using default configurati
 Hint: Some lines were ellipsized, use -l to show in full.
 
 解答:https://microdevsys.com/wp/cloudera-6-2-installation-error-statuslogger-no-log4j2-configuration-file-found/
+
+問題:cdh6.2 安装中出现hdfs/hdfs.sh ["mkdir","/tmp","hdfs","supergroup","1777"] 的问题 cdh
+解答:在第一次安装cdh6.2时，安装完成了，但是主机没有能加入到集群中，导致只有两个datanode节点，然后重装，
+结果就出现了这个问题hdfs/hdfs.sh ["mkdir","/tmp","hdfs","supergroup","1777"]，一直用了3天时间，
+找各种问题，到网上查，主要说法是内存不够，还有说主动退出safemode就可以了。全试了都不行。
+
+最后测试出来是因为提前建了datanode要用到的目录，虽然设置了777的权限，
+但cdh在执行检查的时候发现这个目录不是hdfs用户的，就报错，认为没有可用磁盘，所以进入safemode。
+
+所以在“审核更改”这一步要设置datanode所用目录时，一定要注意不能写一个已经存在的目录，再往下写一层目录就行了，它会自己建。
