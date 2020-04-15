@@ -558,8 +558,8 @@ $ mysql -u root -p
 Enter password:
 
 2.使用以下命令為集群中部署的每個服務創建數據庫。您可以為<database>，<user>和<password>參數使用所需的任何值。下面的Cloudera Software數據庫表列出了Cloudera Manager配置設置中提供的默認名稱，但您無需使用它們。
-配置所有數據庫以使用 utf8 字符集。
 
+配置所有數據庫以使用 utf8 字符集。
 $ CREATE DATABASE <database> DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 (Query OK, 1 row affected (0.00 sec))
 
@@ -625,6 +625,15 @@ CM Server 建議安裝在Utility Host or Master Host (namenode standby)
 安裝Oracle JDK
 1.查看Oracle JDK的安裝版本，應為使用作業系統內建的版本。
 yum search oracle-j2sdk
+*.用 rpm裝cloudrea下載的版本
+*.cd ~
+*.改還進變數 vim ~/.bashrc
+*.export JAVA_HOME=/home/cloudera/jdk1.8.0_241
+*.export PATH=$JAVA_HOME/bin:$PATH
+或
+*.去 /usr/share/cmf/bin/cmf-serve檢查java home設定
+*.這次安裝的JDK1.8就需要改位置/usr/lib
+
 
 2.安裝Oracle JDK (以下是範例，實際上必須依照上述找到的版本安裝)
 yum install oracle-j2sdk1.8
