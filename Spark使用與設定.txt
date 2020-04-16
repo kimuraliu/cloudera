@@ -1,0 +1,19 @@
+官網：https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_first.html
+
+Running Your First Spark Application
+
+Important:By default, CDH is configured to permit any user to access the Hive Metastore. However, 
+if you have modified the value set for the configuration property hadoop.proxyuser.hive.groups, 
+which can be modified in Cloudera Manager by setting the Hive Metastore Access Control and Proxy User Groups Override property, 
+your Spark application might throw exceptions when it is run. 
+To address this issue, make sure you add the groups that contain 
+the Spark users that you want to have access to the metastore 
+when Spark applications are run to this property in Cloudera Manager:
+
+1.In the Cloudera Manager Admin Console Home page, click the Hive service.
+2.On the Hive service page, click the Configuration tab.
+搜尋：(hadoop.proxyuser.hive.groups)
+3.In the Search well, type """""hadoop.proxyuser.hive.groups""""" to locate the Hive Metastore Access Control and Proxy User Groups Override property.
+新增使用者(hive2)
+4.Click the plus sign (+), enter the groups you want to have access to the metastore, 
+and then click Save Changes. You must restart the Hive Metastore Server for the changes to take effect by clicking the restart icon at the top of the page.
