@@ -19,6 +19,11 @@ cmd：程式名稱。
 查看 port
 $ netstat -tulpn | grep LISTEN
 ==========================================
+設定網路開機啟動
+cd /etc/sysconfig/network-scripts;
+vim ifcfg-ens33
+ONBOOT 改為 yes
+==========================================
 1.更新
 yum update
 
