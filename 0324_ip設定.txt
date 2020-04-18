@@ -267,6 +267,13 @@ rpm -i /檔案
 -i ：install 的意思
 -v ：察看更細部的安裝資訊畫面
 -h ：以安裝資訊列顯示安裝進度
+
+*.改還進變數 vim ~/.bashrc
+*.export JAVA_HOME=/home/cloudera/jdk1.8.0_241
+*.export PATH=$JAVA_HOME/bin:$PATH
+source ~/.bash_profile
+java -version
+
 ==============================================================================
 確認需求的資料庫版本(PostgreSQL)
 確認作業系統對應的版本
@@ -614,7 +621,7 @@ $ SHOW DATABASES;
 sudo /opt/cloudera/cm/schema/scm_prepare_database.sh [options] <databaseType> <databaseName> <databaseUser> <password>
 /opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm scm
 
-
+6.修改/etc/cloudera-scm-server/db.properties檔案內容
 
 =================================================================================
 Cloudera Hadoop (CDH) Wizard Installation
@@ -667,8 +674,10 @@ sudo service cloudera-scm-server-db start
 1.在Master  host 上，將CM DB與CM Server連結，指令如下：
 #CM5
 /usr/share/cmf/schema/scm_prepare_database.sh postgresql scm scm scm
-#CM6
+#CM6(postgresql)
 /opt/cloudera/cm/schema/scm_prepare_database.sh postgresql scm scm scm
+#CM6
+/opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm 1234
 (如果發生"嚴重錯誤: Ident驗證使用者失敗"
 修改認證檔案/var/lib/pgsql/data/pg_hba.conf,登陸使用密碼。
 #vi /var/lib/pgsql/data/pg_hba.conf
