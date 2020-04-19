@@ -43,3 +43,22 @@ Hint: Some lines were ellipsized, use -l to show in full.
 但cdh在执行检查的时候发现这个目录不是hdfs用户的，就报错，认为没有可用磁盘，所以进入safemode。
 
 所以在“审核更改”这一步要设置datanode所用目录时，一定要注意不能写一个已经存在的目录，再往下写一层目录就行了，它会自己建。
+
+
+Troubleshooting Installation Problems
+https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/cm_ig_troubleshooting.html
+OpenJDK的TLS協議錯誤
+由Thales HSM支持的Navigator HSM KMS安裝失敗
+無法啟動cloudera-manager-installer.bin報告的服務器
+安裝中斷，安裝程序無法重新啟動
+Cloudera Manager Server無法使用MySQL啟動
+代理無法連接到服務器
+群集主機未出現
+安裝或更新嚮導中的“訪問被拒絕”
+數據庫無法啟動。
+Cloudera服務無法啟動
+活動監視器顯示BAD狀態
+活動監視器無法啟動
+嘗試重新安裝較低版本的Cloudera Manager失敗
+創建Hive Metastore數據庫表命令失敗
+Oracle無效標識符
