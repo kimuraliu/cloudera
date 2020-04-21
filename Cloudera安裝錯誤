@@ -62,3 +62,22 @@ Cloudera服務無法啟動
 嘗試重新安裝較低版本的Cloudera Manager失敗
 創建Hive Metastore數據庫表命令失敗
 Oracle無效標識符
+
+=========================================================================================
+錯誤訊息:HADOOP_DATANODE_OPTS has been replaced by HDFS_DATANODE_OPTS. Using value of HADOOP_DATANODE_OPTS.
+解決HDFS DataNode無法啟動問題
+cd /opt/cloudera/parcels/CDH-6.3.2-1.cdh6.3.2.p0.1605554/lib/hadoop/etc/hadoop
+
+編輯hadoop-env.sh
+增加
+export HDFS_NAMENODE_USER=root
+export HDFS_DATANODE_USER=root
+export HDFS_SECONDARYNAMENODE_USER=root
+export YARN_RESOURCEMANAGER_USER=root
+export YARN_NODEMANAGER_USER=root
+
+該問題因為多次對namenode進行format，每一次format主節點NameNode產生新的clusterID、
+namespaceID，於是導致主節點的clusterID、namespaceID與各個子節點DataNode不一致。
+當format過後再啟動hadoop，hadoop嘗試創建新的current目錄，但是由於已存在current目錄，
+導致創建失敗，最終引起DataNode節點的DataNode進程啟動失敗，從而引起hadoop集群完全啟動失敗。
+因此可以通過直接刪除數據節點DataNode的current文件夾，進行解決該問題。
