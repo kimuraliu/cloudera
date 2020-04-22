@@ -18,3 +18,39 @@ dd if=/dev/zero of=hello.txt bs=100M count=1
 dd if=/dev/zero of=DB106_0415_100M_test.txt bs=100M count=1
 
 ============================================================================
+
+登入網頁
+localhost:9870
+ex
+192.168.1.135:9870
+查看目錄
+hadoop fs -ls /
+===========================================================================
+建立目錄
+(sudo -u hdfs --> 使用者為hdfs)
+(hadoop fs -mkdir --> 建立資料夾)
+(hdfs://namenode/floder --> 資料夾位置名稱)
+在你的終端機下
+sudo -u hdfs hadoop fs -mkdir hdfs://192.168.1.135/0417_test
+===========================================================================
+上傳檔案
+(sudo -u hdfs --> 使用者為hdfs)
+(Hello.txt-->檔案名稱)
+(hadoop fs -put -->上傳資料)
+(hdfs://namenode/floder --> 資料夾位置名稱)
+sudo -u hdfs hadoop fs -put Hello.txt hdfs://192.168.1.135/0417_test
+===========================================================================
+下載檔案
+(sudo -u hdfs --> 使用者為hdfs)
+(Hello.txt-->檔案名稱)
+(hadoop fs -get -->下載資料)
+(hdfs://namenode/floder --> 資料夾位置名稱)
+hadoop fs -get hdfs://192.168.1.135/0417_test/Hello.txt
+===========================================================================
+刪除檔案
+(sudo -u hdfs --> 使用者為hdfs)
+(Hello.txt-->檔案名稱)
+(hadoop fs -get -->刪除資料)
+(hdfs://namenode/floder --> 資料夾位置名稱)
+sudo -u hdfs hadoop fs -rm hdfs://192.168.1.135/0417_test/Hello.txt
+===========================================================================
