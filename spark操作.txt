@@ -1,3 +1,11 @@
+cloudrea spark路徑
+啟動spark
+/opt/cloudera/parcels/CDH-6.3.2-1.cdh6.3.2.p0.1605554/lib/spark/sbin
+./start-all.sh
+
+/opt/cloudera/parcels/CDH-6.3.2-1.cdh6.3.2.p0.1605554/lib/spark/bin
+
+========================================================================================
 from pyspark import SparkContext
 
 if __name__ == "__main__":
