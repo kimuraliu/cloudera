@@ -53,4 +53,9 @@ hadoop fs -get hdfs://192.168.1.135/0417_test/Hello.txt
 (hadoop fs -get -->刪除資料)
 (hdfs://namenode/floder --> 資料夾位置名稱)
 sudo -u hdfs hadoop fs -rm hdfs://192.168.1.135/0417_test/Hello.txt
+
+刪除目錄
+sudo -u hdfs hadoop fs -rmr hdfs://192.168.1.135/0417_test/
+
 ===========================================================================
+
