@@ -1,9 +1,28 @@
+歷史記錄服務器
+http://192.168.1.135:18088/
+單機狀態
+http://192.168.1.135:8080/
+
 cloudrea spark路徑
 啟動spark
+1.建立資料夾
+/var/run/spark/work
+2.到下面路徑
 /opt/cloudera/parcels/CDH-6.3.2-1.cdh6.3.2.p0.1605554/lib/spark/sbin
+3.啟動指令(由namenode啟動)
 ./start-all.sh
 
 /opt/cloudera/parcels/CDH-6.3.2-1.cdh6.3.2.p0.1605554/lib/spark/bin
+
+/pyspark --master spark://nn01:7077
+測試
+from pyspark import SparkContext
+sc = SparkContext()
+lines = sc.textFile("hdfs://192.168.1.135/0422_sqprk_test")
+words = lines.flatMap(lambda x: x.split(" "))
+word_counts = words.map(lambda x: (x, 1)).reduceByKey(lambda x, y: x + y) word_counts.saveAsTextFile("hdfs://192.168.1.135/0422_sqprk_test/out")
+
+
 
 ========================================================================================
 from pyspark import SparkContext
