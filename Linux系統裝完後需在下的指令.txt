@@ -24,6 +24,20 @@ cd /etc/sysconfig/network-scripts;
 vim ifcfg-ens33
 ONBOOT 改為 yes
 ==========================================
+當執行YUM安裝LINUX PACKAGE時, 強行停止YUM-UPDATESD的PROCESS
+當執行yum安裝Linux Package時, 間中會見到既問題：
+
+Another app is currently holding the yum lock; waiting for it to exit…
+
+解決方法 1 :
+
+rm -f /var/run/yum.pid
+解決方法 2 :
+
+ps aux | grep yum (找出yum-updatesd用梗既yum PID)
+
+kill -9 <yum PID>
+==========================================
 1.更新
 yum update
 
