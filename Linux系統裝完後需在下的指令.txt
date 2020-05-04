@@ -19,6 +19,35 @@ cmd：程式名稱。
 查看 port
 $ netstat -tulpn | grep LISTEN
 ==========================================
+RPM 安裝/更新/移除套件指令
+查詢套件(query all)
+rpm -qa
+如果查詢包括特定字串套件, 例如查詢已安裝關於 php 的套件, 可以這樣:
+rpm -qa | grep php
+
+查看特定套件的安裝資訊, 例如 php-mysql:(query information)
+rpm -qi php-mysql
+
+查看套件所安裝的檔案:(query location)
+rpm -ql php-mysql
+
+安裝套件
+rpm -ivh package.rpm
+在安裝及升級時, rpm 預設會檢查相依性, 雖然可以用 –nodeps (忽略相依性) 及 –force (強制安裝) 繞過, 
+但不建議這樣做, 因為存在相依性問題, 套件安裝後不肯定可以正常運作。
+
+更新套件
+更新 package.rpm, 如系統沒有安裝此套件, 直接安裝:
+rpm -Uvh package.rpm
+更新 package.rpm, 如系統沒有安裝此套件, 不會安裝:
+rpm -Fuh package.rpm
+
+如果不透過 YUM 升級 kernel, 而是自行下載 rpm 檔升級, 請使用 rpm -ivh 安裝, 不要使用以上升級選項, 因為使用升級選項, rpm 安裝時會移除舊 kernel, 萬一新 kernel 不能開機要麻煩了。
+
+移除套件
+移除 package 套件:
+rpm -e package
+==========================================
 設定網路開機啟動
 cd /etc/sysconfig/network-scripts;
 vim ifcfg-ens33
