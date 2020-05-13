@@ -11,6 +11,9 @@ CM6 RPM檔案
 https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/
 https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPMS/x86_64/cloudera-manager-server-6.3.1-1466458.el7.x86_64.rpm
 
+Day 4 - Hadoop Ecosystem 之 Hadoop 安裝篇
+https://ithelp.ithome.com.tw/articles/10190942
+
 Step by Step 实现基于 Cloudera 5.8.2 的企业级安全大数据平台 - 传输层加密配置 - Clouder Manager 组件传输层加密
 https://www.jianshu.com/p/ccfff00bc37d
 
