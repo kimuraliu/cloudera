@@ -17,3 +17,7 @@ when Spark applications are run to this property in Cloudera Manager:
 新增使用者(hive2)
 4.Click the plus sign (+), enter the groups you want to have access to the metastore, 
 and then click Save Changes. You must restart the Hive Metastore Server for the changes to take effect by clicking the restart icon at the top of the page.
+
+
+Spark学习之路 （十五）SparkCore的源码解读（一）启动脚本
+https://www.cnblogs.com/qingyunzong/p/8973892.html
